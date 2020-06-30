@@ -37,6 +37,7 @@ const EdgePopup = (props) => {
 
   const getNewEdge =(edgedata)=> {
     edgedata.label = label
+    edgedata.arrows = {to:true}
     switch (label) {
       case `is a`:
         edgedata.arrows = {to:true}
@@ -65,25 +66,11 @@ const VisNetwork = (props) => {
   const [nodechanger , setNodeChanger] = useState({ data : {} , callback : () => null})
   const [edgechanger , setEdgeChanger] = useState({ data : {} , callback : () => null})
 
- // const [data , setData] = useState(props.data)
-
-
   // A reference to the div rendered by this component
   const domNode = useRef(null);
 
   // A reference to the vis network instance
   const network = useRef(null);
-
-  // // An array of nodes
-  // const nodes = new DataSet(
-  //     Array.from(props.concepts , concept => ({id: concept.id , label : concept.label}) )
-  // );
-  //
-  // // An array of edges
-  // const edges = new DataSet(
-  //     Array.from(props.semnet , rel => ({from : rel.start , to : rel.end , label : rel.link , arrows : {to:true}}))
-  // );
-
 
 
   const EditNode = (nodeData , callback) => {
@@ -108,6 +95,7 @@ const VisNetwork = (props) => {
     setIsOpenEdge(false)
   }
 
+  // TODO add delete / edit  to data
   const options = {
     autoResize: true,
     height: '100%',

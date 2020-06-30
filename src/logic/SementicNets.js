@@ -1,32 +1,13 @@
+const SNetwork = ({nodes , edges}) => {
 
-let count = 0 ;
-
-export const Concept = (label) => {
     return {
-        id : count++ ,
-        label : label[0] ,
-        M : [false , false] ,
-        setM(num){ 
-            this.M[num-1] = true
-        },
-        getM(num) {
-            return this.M[num-1]
+        mark(num,id) {
+            return edges.filter(edge => edge.to === id && edge.label === 'is a')
+                .map(edge => this.mark(num, edge.from).concat( edge.from )).flat().concat(id)
         }
     }
 }
 
-export const Relation = (strings = '' , concept1 , link , concept2) => {
-    return {
-        start : concept1.id ,
-        end : concept2.id ,
-        link : link ,
-        show() {
-            return `${this.start.label}(${this.start.M}) -${link}-> ${concept2.label}(${this.end.M})`
-        } 
-    }
-}
-
-export const SNetwork = (relations) => relations
-
+export default SNetwork
 
 

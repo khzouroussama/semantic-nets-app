@@ -1,38 +1,24 @@
- import React, {useState} from 'react';
+import React, {useState} from 'react';
 // In your App.js or index.js entry
 import 'tailwindcss/dist/base.min.css'
 import tw from 'twin.macro'
 import VisNetwork from './components/graph'
 import ToolBar from './components/toolbar'
-import {Concept , Relation , SNetwork} from './logic/SementicNets'
+import SNetwork from './logic/SementicNets'
 import {DataSet} from "vis-network/standalone/esm/vis-network";
 
 const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-stretch ` ,
       Button = tw.button`mb-2 mx-2 bg-gray-400 hover:bg-gray-500 shadow-sm text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center`,
-      Input = tw.input`border-2 border-indigo-300 rounded-full px-3 mx-4 mt-1 text-center outline-none p-4 h-4 mb-3`
-
-
-const Concepts = [
-   Concept`animal`,
-   Concept`carnivor`,
-   Concept`herbivor`,
-   Concept`lion`,
-   Concept`chien`,
-   Concept`lapin`
- ]
-
-
- let SNET = SNetwork([
-   Relation`${Concepts[1]} ${'is a'} ${Concepts[0]}` ,
-   Relation`${Concepts[2]} ${'is a'} ${Concepts[0]}`,
-   Relation`${Concepts[3]} ${'is a'} ${Concepts[1]}`,
-   Relation`${Concepts[5]} ${'is a'} ${Concepts[2]}` ,
-   Relation`${Concepts[4]} ${'is a'} ${Concepts[1]}` ,
-   Relation`${Concepts[1]} ${'mange'} ${Concepts[5]}` ,
- ])
+      Input = tw.input`flex-1 border border-indigo-300 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10 mb-3 shadow-inner` ,
+      Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner`
 
 function App() {
   const [data , setData] = useState({nodes :new DataSet([]), edges : new DataSet()})
+  const [readabledata , setReadableData] = useState({nodes :[], edges : []})
+  const [markprop , setMarkProp] = useState({val1 : '' , link : '' , val2 : '' })
+
+  const sem_net = SNetwork(readabledata)
+
 
   const getData = () => {
     return {
@@ -40,8 +26,31 @@ function App() {
       edges : data.edges.get()
     }
   }
-  const handleChange = (data) => {
-    setData(data)
+
+
+  const handleChange = (data_) => {
+    setData(data_)
+    setReadableData({nodes: data_.nodes.get() , edges: data_.edges.get()})
+    setMarkProp({val1 : data_.nodes.get()[0].id , link : 'is a' , val2 : data_.nodes.get()[0].id })
+  }
+
+  const handleMarkProp = (e) => {
+    const value = e.target.value;
+    const name = e.target.name;
+    setMarkProp({
+      ...markprop ,
+      [name] : value
+    })
+  }
+  const runMarkProp = () => {
+    data.nodes.update(sem_net.mark(1,markprop.val1).map(
+        id => ({ id : id , color: {border : 'red'} , M1 :true })
+    ))
+
+    data.nodes.update(sem_net.mark(2,markprop.val2).map(
+        id => ({ id : id , color: {border : 'green'} , M2 : true } )
+    ))
+    console.log(sem_net.mark(2,markprop.val2))
   }
 
   const downloadJson = async () => {
@@ -68,7 +77,7 @@ function App() {
         reader.readAsText(e.target.files[0])
       }).then(content => {
         const results = JSON.parse(content)
-        setData({nodes :new DataSet(results.nodes), edges : new DataSet(results.edges)})
+        handleChange({nodes :new DataSet(results.nodes), edges : new DataSet(results.edges)})
       }).catch(error => console.log(error))
     }
     document.body.appendChild(input);
@@ -109,17 +118,32 @@ function App() {
                 </span>
                 <span>Save</span>
               </Button>
+              <div tw="text-sm my-2 text-indigo-400 font-mono"> {readabledata.nodes.length} Concepts and {readabledata.edges.length} relations</div>
             </div>
 
             {/* mark propagation */}
             <div tw="border-2 rounded-lg border-indigo-100 p-5 mx-4 shadow-inner bg-gray-100 mt-4">
               <div tw="text-lg mb-4 text-indigo-800">Mark propagation</div>
-              <div>
-                <Input placeholder="Put your question here"/>
-              </div>
-              <Button>
-                <span>Find Solutions</span>
-              </Button>
+                <div tw="flex flex-row">
+                  <Select name="val1" tw="w-1/3" value={markprop.val1} onChange={handleMarkProp}>
+                    {
+                      readabledata.nodes.map(node =>
+                          <option key={node.id} value={node.id}>{node.label}</option>
+                      )
+                    }
+                  </Select>
+                  <Input name="link" tw="w-1/3" placehoder="link" value={markprop.link} onChange={handleMarkProp}/>
+                  <Select name="val2" tw="w-1/3" value={markprop.val2} onChange={handleMarkProp}>
+                    {
+                      readabledata.nodes.map(node =>
+                          <option key={node.id} value={node.id}>{node.label}</option>
+                      )
+                    }
+                  </Select>
+                </div>
+                <Button onClick={() => runMarkProp()}>
+                  <span>Find Solutions</span>
+                </Button>
             </div>
 
             {/* saturate network */}
