@@ -16,6 +16,7 @@ function App() {
   const [data , setData] = useState({nodes :new DataSet([]), edges : new DataSet()})
   const [readabledata , setReadableData] = useState({nodes :[], edges : []})
   const [markprop , setMarkProp] = useState({val1 : '' , link : '' , val2 : '' })
+  const [lastMarkers , setLastMarkers] = useState({m1 :[] , m2 :[]})
 
   const sem_net = SNetwork(readabledata)
 
@@ -42,15 +43,42 @@ function App() {
       [name] : value
     })
   }
+  const cleanGraph = () => {
+    // Clean Markers
+    data.nodes.update(lastMarkers.m1.map(
+        id => ({ id : id , color: null  , M1 :false })
+    ))
+    data.nodes.update(lastMarkers.m2.map(
+        id => ({ id : id , color: null  , M2 : false } )
+    ))
+  }
+
   const runMarkProp = () => {
-    data.nodes.update(sem_net.mark(1,markprop.val1).map(
-        id => ({ id : id , color: {border : 'red'} , M1 :true })
+    cleanGraph()
+    const [m1 , m2 ] = [sem_net.mark(1,markprop.val1) , sem_net.mark(2,markprop.val2)]
+
+    data.nodes.update(m1.map(
+        id => ({ id : id , color: {border : '#dc5468'} , borderWidth : 2 , M1 :true })
     ))
 
-    data.nodes.update(sem_net.mark(2,markprop.val2).map(
-        id => ({ id : id , color: {border : 'green'} , M2 : true } )
+    data.nodes.update(m2.map(
+        id => ({ id : id , color: {border : '#38ac5f'} ,  borderWidth : 2 , M2 : true } )
     ))
-    console.log(sem_net.mark(2,markprop.val2))
+
+    setLastMarkers({m1 : m1, m2 : m2})
+
+    const result = data.edges.get().filter(
+        edge => ((data.nodes.get(edge.from).M1 && data.nodes.get(edge.to).M2) || (data.nodes.get(edge.from).M2 && data.nodes.get(edge.to).M1)) && edge.label === markprop.link
+    )
+
+
+
+    alert(
+        'Ansewrs :\n :'+
+        result.length ?
+          result.map(edge => data.nodes.get(edge.from).label.replace(/\n/g, '')).join('\n')
+            : 'No answers'
+    )
   }
 
   const downloadJson = async () => {
