@@ -8,7 +8,8 @@ const Popup = styled.div`
         ${({open}) => !open && tw`hidden`}
    `,
     Input = tw.textarea`border-2 border-indigo-300 rounded-lg px-3 mx-4 mt-1 text-center outline-none`,
-    Button= tw.button`text-white bg-indigo-500 border-0 py-1 px-3 m-2 focus:outline-none hover:bg-indigo-600 rounded-lg`
+    Button= tw.button`text-white bg-indigo-500 border-0 py-1 px-3 m-2 focus:outline-none hover:bg-indigo-600 rounded-lg`,
+    Select = tw.select` border-2 border-indigo-300 bg-gray-200 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-8  mb-3 shadow-inner`
 
 const NodePopup = (props) => {
   const [label ,setLabel] = useState('')
@@ -34,14 +35,21 @@ const NodePopup = (props) => {
 
 const EdgePopup = (props) => {
   const [label ,setLabel] = useState('')
+  const [type ,setType] = useState('All')
 
   const getNewEdge =(edgedata)=> {
     edgedata.label = label
-    edgedata.arrows = {to:true}
+    edgedata.arrows = type ==='All' ? {to:true} : {to: {enabled: true , type : 'vee'}}
+    if (type ==='Some') edgedata.color = '#978dde'
     switch (label) {
       case `is a`:
-        edgedata.arrows = {to:true}
+        //edgedata.arrows = {to:true}
         break;
+      case `is not` :
+        edgedata.arrows = {to: {enabled: true , type : 'box'}}
+        edgedata.color = '#ee3057'
+        break;
+
     }
     return edgedata
   }
@@ -49,6 +57,11 @@ const EdgePopup = (props) => {
       <Popup style={{left:'20%' , top:'30%'}} open={props.open}>
         <div>
           <div tw="text-lg text-blue-600 font-bold mb-3">Add Relation</div>
+          <div>type</div>
+          <Select value={type} onChange={(e)=> setType(e.target.value)} >
+            <option value="All">All</option>
+            <option value="Some">Generally</option>
+          </Select>
           <div>label</div>
           <Input onChange={(e) => setLabel(e.target.value)} />
           <div tw="mt-2">
@@ -108,7 +121,7 @@ const VisNetwork = (props) => {
       }
     },
     edges: {
-      color: 'lightgray'
+      color: '#645bb3',
     },
     interaction : {
       navigationButtons :true ,

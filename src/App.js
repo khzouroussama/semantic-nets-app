@@ -15,11 +15,15 @@ const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-s
 function App() {
   const [data , setData] = useState({nodes :new DataSet([]), edges : new DataSet()})
   const [readabledata , setReadableData] = useState({nodes :[], edges : []})
+
   const [markprop , setMarkProp] = useState({val1 : '' , link : '' , val2 : '' })
   const [lastMarkers , setLastMarkers] = useState({m1 :[] , m2 :[]})
 
-  const sem_net = SNetwork(readabledata)
+  const [saturationID , setSaturationID] = useState('everything')
+  const [lastSaturations , setLastSaturation] = useState([])
 
+  const sem_net = SNetwork(readabledata)
+  const all_links = [...new Set(data.edges.get().map( v => v.label ))]
 
   const getData = () => {
     return {
@@ -35,14 +39,6 @@ function App() {
     setMarkProp({val1 : data_.nodes.get()[0].id , link : 'is a' , val2 : data_.nodes.get()[0].id })
   }
 
-  const handleMarkProp = (e) => {
-    const value = e.target.value;
-    const name = e.target.name;
-    setMarkProp({
-      ...markprop ,
-      [name] : value
-    })
-  }
   const cleanGraph = () => {
     // Clean Markers
     data.nodes.update(lastMarkers.m1.map(
@@ -51,11 +47,23 @@ function App() {
     data.nodes.update(lastMarkers.m2.map(
         id => ({ id : id , color: null  , M2 : false } )
     ))
+    // Clean inference edges
+    data.edges.remove(lastSaturations)
+
+  }
+
+  const handleMarkProp = (e) => {
+    const value = e.target.value;
+    const name = e.target.name;
+    setMarkProp({
+      ...markprop ,
+      [name] : value
+    })
   }
 
   const runMarkProp = () => {
     cleanGraph()
-    const [m1 , m2 ] = [sem_net.mark(1,markprop.val1) , sem_net.mark(2,markprop.val2)]
+    const [m1 , m2 ] = [sem_net.mark(markprop.val1) , sem_net.mark(markprop.val2)]
 
     data.nodes.update(m1.map(
         id => ({ id : id , color: {border : '#dc5468'} , borderWidth : 2 , M1 :true })
@@ -70,8 +78,7 @@ function App() {
     const result = data.edges.get().filter(
         edge => ((data.nodes.get(edge.from).M1 && data.nodes.get(edge.to).M2) || (data.nodes.get(edge.from).M2 && data.nodes.get(edge.to).M1)) && edge.label === markprop.link
     )
-
-
+    //console.log(result)
 
     alert(
         'Ansewrs :\n :'+
@@ -80,6 +87,49 @@ function App() {
             : 'No answers'
     )
   }
+
+  const handleSaturation = (e) => {
+    const value = e.target.value;
+    setSaturationID(value)
+  }
+
+  const runSaturate = () => {
+    cleanGraph()
+    let result =[] ;
+    let new_edges =[] ;
+    console.log(all_links)
+
+    const exceptions = readabledata.edges.filter(v => v.label === 'is not')
+
+    if (saturationID === 'everything'){
+      // console.log(saturationID)
+      all_links.forEach(link => {
+        data.nodes.forEach( node => {
+          result = sem_net.saturate(node.id , link )
+          // Skip Exceptions
+          result = result.filter(n => !(exceptions.map(ex=> ex.from).includes(node.id) && exceptions.map(ex=> ex.to).includes(n)) )
+
+          new_edges = new_edges.concat(
+              data.edges.add(
+                  result.map(val => ({from : node.id , to : val , label : link, arrows : {to :true} , dashes : true , color : 'lightgray'}))
+              )
+          )
+        })
+      }
+      )
+    } else {
+      all_links.forEach(
+          link  => {
+            result = sem_net.saturate(saturationID , link)
+            result = result.filter(n => !(exceptions.map(ex=> ex.from).includes(saturationID) && exceptions.map(ex=> ex.to).includes(n)) )
+            new_edges = new_edges.concat(data.edges.add(
+                result.map(val => ({from : saturationID , to : val , label : link, arrows : {to :true} , dashes : true , color : 'lightgray'} ))
+            ))
+          })
+    }
+    setLastSaturation(new_edges)
+  }
+
 
   const downloadJson = async () => {
     const fileName = "file";
@@ -97,6 +147,7 @@ function App() {
   const uploadJson = () => {
     const input = document.createElement('input');
     input.type = "file";
+    input.accept = "application/json"
     input.onchange = (e) => {
       const reader = new FileReader()
       new Promise((resolve, reject) => {
@@ -123,11 +174,11 @@ function App() {
           <VisNetwork data={data} handleChange={handleChange} />
         </div>
         <div tw="bg-gray-300 w-full md:w-1/3 shadow-2xl h-screen overflow-auto">
-          <div tw="p-5">
+          <div tw="px-5 py-2">
             <div tw="text-3xl text-indigo-600 mt-5 mb-12 font-bold uppercase"> Semantic networks</div>
 
             {/* import save */}
-            <div tw="border-2 rounded-lg border-indigo-100 p-5 mx-4 shadow-inner bg-gray-100">
+            <div tw="border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow-inner bg-gray-100">
               <div tw="text-lg mb-4 text-indigo-800">Import/Save knowledge base</div>
               <Button onClick={()=> uploadJson()}>
                 <span tw="fill-current w-5 h-5 mr-2">
@@ -146,22 +197,38 @@ function App() {
                 </span>
                 <span>Save</span>
               </Button>
-              <div tw="text-sm my-2 text-indigo-400 font-mono"> {readabledata.nodes.length} Concepts and {readabledata.edges.length} relations</div>
+              <div tw="text-sm my-1 text-indigo-400 font-mono"> <b>{readabledata.nodes.length}</b> Concepts and <b>{readabledata.edges.length}</b> relations</div>
+              <div>
+                <Button tw="p-2 py-1"  onClick={()=> cleanGraph()}>
+                  <span tw="fill-current w-5 h-5 mr-2">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M2 12C2 9.21 3.64 6.8 6 5.68V3.5C2.5 4.76 0 8.09 0 12S2.5 19.24 6 20.5V18.32C3.64 17.2 2 14.79 2 12M15 3C10.04 3 6 7.04 6 12S10.04 21 15 21 24 16.96 24 12 19.96 3 15 3M20 15.59L18.59 17L15 13.41L11.41 17L10 15.59L13.59 12L10 8.41L11.41 7L15 10.59L18.59 7L20 8.41L16.41 12L20 15.59Z" />
+                    </svg>
+                  </span>
+                  <span>Clean</span>
+                </Button>
+              </div>
             </div>
 
             {/* mark propagation */}
             <div tw="border-2 rounded-lg border-indigo-100 p-5 mx-4 shadow-inner bg-gray-100 mt-4">
               <div tw="text-lg mb-4 text-indigo-800">Mark propagation</div>
-                <div tw="flex flex-row">
-                  <Select name="val1" tw="w-1/3" value={markprop.val1} onChange={handleMarkProp}>
+                <div tw="flex flex-wrap flex-row">
+                  <Select name="val1" tw="w-full lg:w-1/3" value={markprop.val1} onChange={handleMarkProp}>
                     {
                       readabledata.nodes.map(node =>
                           <option key={node.id} value={node.id}>{node.label}</option>
                       )
                     }
                   </Select>
-                  <Input name="link" tw="w-1/3" placehoder="link" value={markprop.link} onChange={handleMarkProp}/>
-                  <Select name="val2" tw="w-1/3" value={markprop.val2} onChange={handleMarkProp}>
+                  <Select name="link" tw="w-full lg:w-1/3 border-indigo-200 text-indigo-600 font-bold items-center" value={markprop.link} onChange={handleMarkProp}>
+                    {
+                      all_links.map(link =>
+                          <option key={link} value={link}>{link}</option>
+                      )
+                    }
+                  </Select>
+                  <Select name="val2" tw="w-full lg:w-1/3" value={markprop.val2} onChange={handleMarkProp}>
                     {
                       readabledata.nodes.map(node =>
                           <option key={node.id} value={node.id}>{node.label}</option>
@@ -177,7 +244,17 @@ function App() {
             {/* saturate network */}
             <div tw="border-2 rounded-lg border-indigo-100 p-5 mx-4 shadow-inner bg-gray-100 mt-4">
               <div tw="text-lg mb-4 text-indigo-800">Inheritance</div>
-              <Button>
+              <div tw="flex flex-row">
+                <Select name="SaturationID" tw="w-1/3 lg:mx-12" value={saturationID}  onChange={handleSaturation}>
+                  <option tw="bg-green-400 font-bold" value="everything">Everthing</option>
+                  {
+                    readabledata.nodes.map(node =>
+                        <option key={node.id} value={node.id}>{node.label}</option>
+                    )
+                  }
+                </Select>
+              </div>
+              <Button onClick={()=> runSaturate()}>
                 <span>Saturate Network</span>
               </Button>
             </div>
