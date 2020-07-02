@@ -1,3 +1,11 @@
+# Semantic Networks [![Netlify Status](https://api.netlify.com/api/v1/badges/df4b3efb-73bb-4956-89e6-7483df9a255c/deploy-status)](https://app.netlify.com/sites/semantic-networks/deploys)
+
+
+https://semantic-networks.netlify.app/ 
+
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
