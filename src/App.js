@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import 'tailwindcss/dist/base.min.css'
 import tw from 'twin.macro'
 import VisNetwork from './components/graph'
-import ToolBar from './components/toolbar'
+// import ToolBar from './components/toolbar'
 import SNetwork from './logic/SementicNets'
 import {DataSet} from "vis-network/standalone/esm/vis-network";
 
@@ -25,12 +25,12 @@ function App() {
   const sem_net = SNetwork(readabledata)
   const all_links = [...new Set(data.edges.get().map( v => v.label ))]
 
-  const getData = () => {
-    return {
-      nodes : data.nodes.get() ,
-      edges : data.edges.get()
-    }
-  }
+  // const getData = () => {
+  //   return {
+  //     nodes : data.nodes.get() ,
+  //     edges : data.edges.get()
+  //   }
+  // }
 
 
   const handleChange = (data_) => {
