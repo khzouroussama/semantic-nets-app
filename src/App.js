@@ -132,6 +132,7 @@ function App() {
 
 
   const downloadJson = async () => {
+    cleanGraph()
     const fileName = "file";
     const json = JSON.stringify({ nodes: data.nodes.get() , edges : data.edges.get()} );
     const blob = new Blob([json],{type:'application/json'});
@@ -155,6 +156,7 @@ function App() {
         reader.onerror = error => reject(error)
         reader.readAsText(e.target.files[0])
       }).then(content => {
+        cleanGraph()
         const results = JSON.parse(content)
         handleChange({nodes :new DataSet(results.nodes), edges : new DataSet(results.edges)})
       }).catch(error => console.log(error))
