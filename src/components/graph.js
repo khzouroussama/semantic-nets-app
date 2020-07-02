@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { DataSet, Network} from 'vis-network/standalone/esm/vis-network';
+import { Network} from 'vis-network/standalone/esm/vis-network';
 import 'vis-network/dist/dist/vis-network.css';
 import tw, { styled } from 'twin.macro'
 
@@ -49,6 +49,7 @@ const EdgePopup = (props) => {
         edgedata.arrows = {to: {enabled: true , type : 'box'}}
         edgedata.color = '#ee3057'
         break;
+      default:
 
     }
     return edgedata
@@ -164,6 +165,7 @@ const VisNetwork = (props) => {
       domNode.current.style['height'] = '100vh'; 
       network.current = new Network(domNode.current, props.data, options);
     },
+      // eslint-disable-next-line
     [domNode , props.data]
   );
 

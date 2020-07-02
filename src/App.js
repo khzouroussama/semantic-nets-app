@@ -10,7 +10,7 @@ import {DataSet} from "vis-network/standalone/esm/vis-network";
 const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-stretch ` ,
       Card   = tw.div`border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow bg-gray-100`,
       Button = tw.button`mb-2 mx-2 bg-gray-400 hover:bg-gray-500 shadow-sm text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center`,
-      Input  = tw.input`flex-1 border border-indigo-300 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10 mb-3 shadow-inner` ,
+      //Input  = tw.input`flex-1 border border-indigo-300 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10 mb-3 shadow-inner` ,
       Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner overflow-hidden`
 
 function App() {
