@@ -46,7 +46,7 @@ function App() {
   const cleanGraph = () => {
     // Clean Markers
     data.nodes.update(lastMarkers.m1.map(
-        id => ({ id : id , color: null  , M1 :false })
+        id => ({ id : id , color: null  , M1 :false})
     ))
     data.nodes.update(lastMarkers.m2.map(
         id => ({ id : id , color: null  , M2 : false } )
@@ -75,11 +75,11 @@ function App() {
     // ======================= Visualize coloration
     // color M1 nodes
     data.nodes.update(m1.map(
-        id => ({ id : id , color: {border : '#dc5468'} , borderWidth : 2 , M1 :true })
+        id => ({ id : id , color: {border : '#dc5468'} , borderWidth : 2  , M1 :true })
     ))
     // color M2 nodes
     data.nodes.update(m2.map(
-        id => ({ id : id , color: {border : '#38ac5f'} ,  borderWidth : 2 , M2 : true } )
+        id => ({ id : id , color: {border : '#38ac5f'} ,  borderWidth : 2 ,  M2 : true } )
     ))
 
     // find solutions
@@ -90,6 +90,10 @@ function App() {
     // Color solution edges
     data.edges.update(result.map(
         edge => ({ id : edge.id , color: '#6fb66f' , width : 3} )
+    ))
+
+    data.nodes.update(result.map(res => data.nodes.get(res.from)).map(
+        node => ({ id : node.id , color : { background : '#9ae6b4' } } )
     ))
 
     setLastMarkers({m1 : m1, m2 : m2 , solutions : result} )
@@ -214,7 +218,7 @@ result.length ?
                 </span>
                 <span>Save</span>
               </Button>
-              <div tw="text-sm my-1 text-indigo-400 font-mono"> <b>{readabledata.nodes.length}</b> Concepts - <b>{readabledata.edges.length}</b> relations</div>
+              <div tw="text-sm my-1 text-indigo-400 font-mono p-1 border rounded-full bg-gray-200 shadow-inner mx-5"> <b>{readabledata.nodes.length}</b> Concepts - <b>{readabledata.edges.length}</b> relations</div>
               <div>
                 <Button tw="p-2 py-1"  onClick={()=> cleanGraph()}>
                   <span tw="fill-current w-5 h-5 mr-2">

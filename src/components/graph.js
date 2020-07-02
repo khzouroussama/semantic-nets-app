@@ -118,6 +118,8 @@ const VisNetwork = (props) => {
     nodes : {
       color: '#c3dafe' ,
       font: {
+        face: 'Roboto' ,
+        size : 14 ,
         color: '#3c366b'
       } ,
       scaling : {

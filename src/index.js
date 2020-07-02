@@ -1,8 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import WebFont from 'webfontloader';
+
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+
+WebFont.load({
+    google: {
+        families: ['Quicksand']
+    }
+});
+
+WebFont.load({
+    google: {
+        families: ['Roboto']
+    }
+});
 
 ReactDOM.render(
   <React.StrictMode>
