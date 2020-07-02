@@ -119,10 +119,19 @@ const VisNetwork = (props) => {
       color: '#c3dafe' ,
       font: {
         color: '#3c366b'
-      }
+      } ,
+      scaling : {
+        label : {
+          enabled : true
+        }
+      } ,
+      //margin : 100 ,
+      widthConstraint : {maximum : 120}
     },
     edges: {
       color: '#645bb3',
+      length : 150 ,
+      smooth :true
     },
     interaction : {
       navigationButtons :true ,

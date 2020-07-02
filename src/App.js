@@ -18,7 +18,7 @@ function App() {
   const [readabledata , setReadableData] = useState({nodes :[], edges : []})
 
   const [markprop , setMarkProp] = useState({val1 : '' , link : '' , val2 : '' })
-  const [lastMarkers , setLastMarkers] = useState({m1 :[] , m2 :[]})
+  const [lastMarkers , setLastMarkers] = useState({m1 :[] , m2 :[] , solutions : []})
 
   const [saturationID , setSaturationID] = useState('everything')
   const [lastSaturations , setLastSaturation] = useState([])
@@ -48,6 +48,9 @@ function App() {
     data.nodes.update(lastMarkers.m2.map(
         id => ({ id : id , color: null  , M2 : false } )
     ))
+    data.edges.update(lastMarkers.solutions.map(
+        edge => ({id : edge.id , color : null , width : null })
+    ))
     // Clean inference edges
     data.edges.remove(lastSaturations)
 
@@ -64,22 +67,29 @@ function App() {
 
   const runMarkProp = () => {
     cleanGraph()
+    // mark M1 / M2
     const [m1 , m2 ] = [sem_net.mark(markprop.val1) , sem_net.mark(markprop.val2)]
-
+    // ======================= Visualize coloration
+    // color M1 nodes
     data.nodes.update(m1.map(
         id => ({ id : id , color: {border : '#dc5468'} , borderWidth : 2 , M1 :true })
     ))
-
+    // color M2 nodes
     data.nodes.update(m2.map(
         id => ({ id : id , color: {border : '#38ac5f'} ,  borderWidth : 2 , M2 : true } )
     ))
 
-    setLastMarkers({m1 : m1, m2 : m2})
-
+    // find solutions
     const result = data.edges.get().filter(
         edge => ((data.nodes.get(edge.from).M1 && data.nodes.get(edge.to).M2) || (data.nodes.get(edge.from).M2 && data.nodes.get(edge.to).M1)) && edge.label === markprop.link
     )
-    //console.log(result)
+    //=========================== visualize Solutions
+    // Color solution edges
+    data.edges.update(result.map(
+        edge => ({ id : edge.id , color: '#6fb66f' , width : 3} )
+    ))
+
+    setLastMarkers({m1 : m1, m2 : m2 , solutions : result} )
 
     alert(
         `Answers  :
