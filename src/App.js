@@ -8,8 +8,9 @@ import SNetwork from './logic/SementicNets'
 import {DataSet} from "vis-network/standalone/esm/vis-network";
 
 const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-stretch ` ,
+      Card   = tw.div`border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow-inner bg-gray-100`,
       Button = tw.button`mb-2 mx-2 bg-gray-400 hover:bg-gray-500 shadow-sm text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center`,
-      Input = tw.input`flex-1 border border-indigo-300 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10 mb-3 shadow-inner` ,
+      Input  = tw.input`flex-1 border border-indigo-300 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10 mb-3 shadow-inner` ,
       Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner`
 
 function App() {
@@ -180,7 +181,7 @@ function App() {
             <div tw="text-3xl text-indigo-600 mt-5 mb-12 font-bold uppercase"> Semantic networks</div>
 
             {/* import save */}
-            <div tw="border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow-inner bg-gray-100">
+            <Card >
               <div tw="text-lg mb-4 text-indigo-800">Import/Save knowledge base</div>
               <Button onClick={()=> uploadJson()}>
                 <span tw="fill-current w-5 h-5 mr-2">
@@ -210,10 +211,10 @@ function App() {
                   <span>Clean</span>
                 </Button>
               </div>
-            </div>
+            </Card>
 
             {/* mark propagation */}
-            <div tw="border-2 rounded-lg border-indigo-100 p-5 mx-4 shadow-inner bg-gray-100 mt-4">
+            <Card tw="mt-4">
               <div tw="text-lg mb-4 text-indigo-800">Mark propagation</div>
                 <div tw="flex flex-wrap flex-row">
                   <Select name="val1" tw="w-full lg:w-1/3" value={markprop.val1} onChange={handleMarkProp}>
@@ -241,10 +242,10 @@ function App() {
                 <Button onClick={() => runMarkProp()}>
                   <span>Find Solutions</span>
                 </Button>
-            </div>
+            </Card>
 
             {/* saturate network */}
-            <div tw="border-2 rounded-lg border-indigo-100 p-5 mx-4 shadow-inner bg-gray-100 mt-4">
+            <Card tw="mt-4">
               <div tw="text-lg mb-4 text-indigo-800">Inheritance</div>
               <div tw="flex flex-row">
                 <Select name="SaturationID" tw="w-1/3 lg:mx-12" value={saturationID}  onChange={handleSaturation}>
@@ -259,7 +260,7 @@ function App() {
               <Button onClick={()=> runSaturate()}>
                 <span>Saturate Network</span>
               </Button>
-            </div>
+            </Card>
 
           </div>
         </div>
