@@ -8,10 +8,10 @@ import SNetwork from './logic/SementicNets'
 import {DataSet} from "vis-network/standalone/esm/vis-network";
 
 const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-stretch ` ,
-      Card   = tw.div`border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow-inner bg-gray-100`,
+      Card   = tw.div`border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow bg-gray-100`,
       Button = tw.button`mb-2 mx-2 bg-gray-400 hover:bg-gray-500 shadow-sm text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center`,
       Input  = tw.input`flex-1 border border-indigo-300 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10 mb-3 shadow-inner` ,
-      Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner`
+      Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner overflow-hidden`
 
 function App() {
   const [data , setData] = useState({nodes :new DataSet([]), edges : new DataSet()})
@@ -82,10 +82,13 @@ function App() {
     //console.log(result)
 
     alert(
-        'Ansewrs :\n :'+
-        result.length ?
-          result.map(edge => data.nodes.get(edge.from).label.replace(/\n/g, '')).join('\n')
-            : 'No answers'
+        `Answers  :
+${
+result.length ?
+    result.map(edge => data.nodes.get(edge.from).label.replace(/\n/g, '')).join('\n') : 'No answers'
+}
+        `
+
     )
   }
 
@@ -173,16 +176,15 @@ function App() {
       <Layout>
         {/* Toolbar */}
         {/*<ToolBar/>*/}
-        <div tw="w-full md:w-2/3">
+        <div tw="w-full md:w-2/3 sm:h-64">
           <VisNetwork data={data} handleChange={handleChange} />
         </div>
-        <div tw="bg-gray-300 w-full md:w-1/3 shadow-2xl h-screen overflow-auto">
-          <div tw="px-5 py-2">
-            <div tw="text-3xl text-indigo-600 mt-5 mb-12 font-bold uppercase"> Semantic networks</div>
-
+        <div tw="flex flex-col bg-gray-300 w-full md:w-1/3 shadow-2xl h-screen overflow-auto">
+          <div tw="text-2xl text-indigo-600 mt-10 font-bold uppercase"> Semantic networks</div>
+          <div tw="px-5 py-2 my-auto ">
             {/* import save */}
             <Card >
-              <div tw="text-lg mb-4 text-indigo-800">Import/Save knowledge base</div>
+              <div tw="my-2 text-indigo-600 font-bold">Knowledge Bases</div>
               <Button onClick={()=> uploadJson()}>
                 <span tw="fill-current w-5 h-5 mr-2">
                   <svg viewBox="0 0 24 24">
@@ -200,7 +202,7 @@ function App() {
                 </span>
                 <span>Save</span>
               </Button>
-              <div tw="text-sm my-1 text-indigo-400 font-mono"> <b>{readabledata.nodes.length}</b> Concepts and <b>{readabledata.edges.length}</b> relations</div>
+              <div tw="text-sm my-1 text-indigo-400 font-mono"> <b>{readabledata.nodes.length}</b> Concepts - <b>{readabledata.edges.length}</b> relations</div>
               <div>
                 <Button tw="p-2 py-1"  onClick={()=> cleanGraph()}>
                   <span tw="fill-current w-5 h-5 mr-2">
@@ -212,26 +214,45 @@ function App() {
                 </Button>
               </div>
             </Card>
+            <Card tw="p-3 mt-3 bg-gray-200 shadow-inner">
+              <div tw="text-lg text-indigo-600 my-2 font-bold uppercase"> Algorithms</div>
+              {/* mark propagation */}
+              <Card>
+                <div tw="my-2 text-indigo-600 font-bold">Mark propagation</div>
+                  <div tw="flex flex-wrap">
+                    <Select name="val1" tw="w-full lg:w-1/3" value={markprop.val1} onChange={handleMarkProp}>
+                      {
+                        readabledata.nodes.map(node =>
+                            <option key={node.id} value={node.id}>{node.label}</option>
+                        )
+                      }
+                    </Select>
+                    <Select name="link" tw="w-full lg:w-1/3 border-indigo-200 text-indigo-600 font-bold items-center" value={markprop.link} onChange={handleMarkProp}>
+                      {
+                        all_links.map(link =>
+                            <option key={link} value={link}>{link}</option>
+                        )
+                      }
+                    </Select>
+                    <Select name="val2" tw="w-full lg:w-1/3" value={markprop.val2} onChange={handleMarkProp}>
+                      {
+                        readabledata.nodes.map(node =>
+                            <option key={node.id} value={node.id}>{node.label}</option>
+                        )
+                      }
+                    </Select>
+                  </div>
+                  <Button onClick={() => runMarkProp()}>
+                    <span>Find Solutions</span>
+                  </Button>
+              </Card>
 
-            {/* mark propagation */}
-            <Card tw="mt-4">
-              <div tw="text-lg mb-4 text-indigo-800">Mark propagation</div>
-                <div tw="flex flex-wrap flex-row">
-                  <Select name="val1" tw="w-full lg:w-1/3" value={markprop.val1} onChange={handleMarkProp}>
-                    {
-                      readabledata.nodes.map(node =>
-                          <option key={node.id} value={node.id}>{node.label}</option>
-                      )
-                    }
-                  </Select>
-                  <Select name="link" tw="w-full lg:w-1/3 border-indigo-200 text-indigo-600 font-bold items-center" value={markprop.link} onChange={handleMarkProp}>
-                    {
-                      all_links.map(link =>
-                          <option key={link} value={link}>{link}</option>
-                      )
-                    }
-                  </Select>
-                  <Select name="val2" tw="w-full lg:w-1/3" value={markprop.val2} onChange={handleMarkProp}>
+              {/* saturate network */}
+              <Card tw="mt-4">
+                <div tw="my-2 text-indigo-600 font-bold">Inheritance</div>
+                <div tw="flex flex-row">
+                  <Select name="SaturationID" tw="w-1/3 lg:mx-12" value={saturationID}  onChange={handleSaturation}>
+                    <option tw="bg-green-400 font-bold" value="everything">Everthing</option>
                     {
                       readabledata.nodes.map(node =>
                           <option key={node.id} value={node.id}>{node.label}</option>
@@ -239,29 +260,11 @@ function App() {
                     }
                   </Select>
                 </div>
-                <Button onClick={() => runMarkProp()}>
-                  <span>Find Solutions</span>
+                <Button onClick={()=> runSaturate()}>
+                  <span>Saturate Network</span>
                 </Button>
+              </Card>
             </Card>
-
-            {/* saturate network */}
-            <Card tw="mt-4">
-              <div tw="text-lg mb-4 text-indigo-800">Inheritance</div>
-              <div tw="flex flex-row">
-                <Select name="SaturationID" tw="w-1/3 lg:mx-12" value={saturationID}  onChange={handleSaturation}>
-                  <option tw="bg-green-400 font-bold" value="everything">Everthing</option>
-                  {
-                    readabledata.nodes.map(node =>
-                        <option key={node.id} value={node.id}>{node.label}</option>
-                    )
-                  }
-                </Select>
-              </div>
-              <Button onClick={()=> runSaturate()}>
-                <span>Saturate Network</span>
-              </Button>
-            </Card>
-
           </div>
         </div>
       </Layout>
