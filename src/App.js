@@ -6,6 +6,8 @@ import VisNetwork from './components/graph'
 // import ToolBar from './components/toolbar'
 import SNetwork from './logic/SementicNets'
 import {DataSet} from "vis-network/standalone/esm/vis-network";
+import KR_EXAMPLE from './exemples/KR.json'
+
 
 const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-stretch ` ,
       Card   = tw.div`border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow bg-gray-100`,
@@ -14,10 +16,10 @@ const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-s
       Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner overflow-hidden`
 
 function App() {
-  const [data , setData] = useState({nodes :new DataSet([]), edges : new DataSet()})
-  const [readabledata , setReadableData] = useState({nodes :[], edges : []})
+  const [data , setData] = useState({nodes :new DataSet(KR_EXAMPLE.nodes), edges : new DataSet(KR_EXAMPLE.edges)})
+  const [readabledata , setReadableData] = useState({nodes :KR_EXAMPLE.nodes, edges : KR_EXAMPLE.edges})
 
-  const [markprop , setMarkProp] = useState({val1 : '' , link : '' , val2 : '' })
+  const [markprop , setMarkProp] = useState({val1 : KR_EXAMPLE.nodes[0].id , link : 'is a' , val2 :  KR_EXAMPLE.nodes[0].id })
   const [lastMarkers , setLastMarkers] = useState({m1 :[] , m2 :[] , solutions : []})
 
   const [saturationID , setSaturationID] = useState('everything')
@@ -26,6 +28,7 @@ function App() {
   const sem_net = SNetwork(readabledata)
   const all_links = [...new Set(data.edges.get().map( v => v.label ))]
 
+  console.log(KR_EXAMPLE)
   // const getData = () => {
   //   return {
   //     nodes : data.nodes.get() ,
@@ -111,7 +114,6 @@ result.length ?
     cleanGraph()
     let result =[] ;
     let new_edges =[] ;
-    console.log(all_links)
 
     const exceptions = readabledata.edges.filter(v => v.label === 'is not')
 
@@ -202,7 +204,7 @@ result.length ?
                   </svg>
                 </span>
 
-                <span>Import</span>
+                <span>Open</span>
               </Button>
               <Button onClick={()=> downloadJson() }>
                 <span tw="fill-current w-5 h-5 mr-2">
