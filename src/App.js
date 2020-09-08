@@ -286,7 +286,7 @@ result.length ?
 
           {/*github*/}
           <div tw="px-5 mb-5 mx-auto">
-            <a tw="flex text-gray-800 hover:text-indigo-600" href="https://github.com/khzouroussama/semantic-nets-app" target="_blank">
+            <a tw="flex text-gray-800 hover:text-indigo-600" href="https://github.com/khzouroussama/semantic-nets-app" target="_blank"  rel="noopener noreferrer">
               <svg tw="h-6 w-6 fill-current " xmlns='http://www.w3.org/2000/svg'
                    viewBox='0 0 512 512'>
                 <path
