@@ -39,19 +39,21 @@ const EdgePopup = (props) => {
 
   const getNewEdge =(edgedata)=> {
     edgedata.label = label
-    edgedata.arrows = type ==='All' ? {to:true} : {to: {enabled: true , type : 'vee'}}
-    if (type ==='Some') edgedata.color = '#978dde'
-    switch (label) {
-      case `is a`:
-        //edgedata.arrows = {to:true}
-        break;
-      case `is not` :
-        edgedata.arrows = {to: {enabled: true , type : 'box'}}
-        edgedata.color = '#ee3057'
-        break;
-      default:
-
-    }
+    edgedata.edge_type = type
+    edgedata.arrows = ( type ==='Most' || type ==='NSNot' ) ? {to: {enabled: true , type : 'vee'}} : {to:true}
+    if (type ==='Most') edgedata.color = '#978dde'
+    if (type ==='Not') edgedata.color = '#ee3057'
+    if (type ==='NSNot') edgedata.color = '#e5778d'
+    // switch (label) {
+    //   case `is a`:
+    //     //edgedata.arrows = {to:true}
+    //     break;
+    //   case `is not` :
+    //     edgedata.arrows = {to: {enabled: true , type : 'box'}}
+    //     edgedata.color = '#ee3057'
+    //     break;
+    //   default:
+    // }
     return edgedata
   }
   return (
@@ -60,8 +62,10 @@ const EdgePopup = (props) => {
           <div tw="text-lg text-blue-600 font-bold mb-3">Add Relation</div>
           <div>type</div>
           <Select value={type} onChange={(e)=> setType(e.target.value)} >
-            <option value="All">All</option>
-            <option value="Some">Generally</option>
+            <option value="All">Strict (Always)</option>
+            <option value="Most">Not Strict (Generally)</option>
+            <option value="Not">Strictly Not (Always Not)</option>
+            <option value="NSNot">Not Strictly Not (Generally Not)</option>
           </Select>
           <div>label</div>
           <Input onChange={(e) => setLabel(e.target.value)} />

@@ -1,1 +1,91 @@
-{"nodes":[{"id":"0b1ef25f-3983-4944-acee-ee28d52b2656","x":-263,"y":-112,"label":"Oiseaux"},{"id":"07e0df22-44ba-4311-b880-9f85db401ac5","x":-81,"y":-238,"label":"Voler"},{"id":"6a697e95-36e2-4397-a5de-153bb62edf39","x":-433,"y":-104,"label":"Moineaux"},{"id":"c38bf8b0-e90d-4296-a853-5eecceb6045b","x":-255,"y":-119,"label":"Autruche"}],"edges":[{"from":"0b1ef25f-3983-4944-acee-ee28d52b2656","to":"07e0df22-44ba-4311-b880-9f85db401ac5","label":"Loconotion","arrows":{"to":{"enabled":true,"type":"vee"}},"color":"#978dde","id":"68e5fb91-9b1e-4592-a5cb-9b69eee844c3"},{"from":"6a697e95-36e2-4397-a5de-153bb62edf39","to":"0b1ef25f-3983-4944-acee-ee28d52b2656","label":"is a","arrows":{"to":true},"id":"94b66dbe-7121-49a9-a32d-9e5545c9f0f7"},{"from":"c38bf8b0-e90d-4296-a853-5eecceb6045b","to":"0b1ef25f-3983-4944-acee-ee28d52b2656","label":"is a","arrows":{"to":true},"id":"b4896988-fe52-4424-803a-3890c8c907d1"},{"from":"c38bf8b0-e90d-4296-a853-5eecceb6045b","to":"07e0df22-44ba-4311-b880-9f85db401ac5","label":"is not","arrows":{"to":{"enabled":true,"type":"box"}},"color":"#ee3057","id":"0f57d85d-2309-4fd8-9f40-18f24748dda9"}]}
+{
+  "nodes": [
+    {
+      "id": "5d544bda-7d61-44dd-9609-ca47a5fb12d3",
+      "x": -245,
+      "y": -138.5,
+      "label": "Bird",
+      "color": null,
+      "borderWidth": 2,
+      "M1": false,
+      "M2": false
+    },
+    {
+      "id": "2bc4d46e-c5eb-41ce-89b9-ef2ac8a5e78d",
+      "x": 124,
+      "y": -105.5,
+      "label": "Fly"
+    },
+    {
+      "id": "4f34c1a9-c93a-4f52-bc9f-6c7bcdf16b54",
+      "x": 104,
+      "y": -137.5,
+      "label": "ostriches",
+      "color": null,
+      "borderWidth": 2,
+      "M1": false,
+      "M2": false
+    },
+    {
+      "id": "b49b7f0b-4323-4ee5-92b6-9e426691170c",
+      "x": -271,
+      "y": -86.5,
+      "label": "Owl",
+      "color": null,
+      "borderWidth": 2,
+      "M1": false,
+      "M2": false
+    }
+  ],
+  "edges": [
+    {
+      "from": "5d544bda-7d61-44dd-9609-ca47a5fb12d3",
+      "to": "2bc4d46e-c5eb-41ce-89b9-ef2ac8a5e78d",
+      "label": "can",
+      "edge_type": "Most",
+      "arrows": {
+        "to": {
+          "enabled": true,
+          "type": "vee"
+        }
+      },
+      "color": "#978dde",
+      "id": "ac85f547-1fec-45d9-a5e6-84a472be8ece"
+    },
+    {
+      "from": "4f34c1a9-c93a-4f52-bc9f-6c7bcdf16b54",
+      "to": "5d544bda-7d61-44dd-9609-ca47a5fb12d3",
+      "label": "is a",
+      "edge_type": "All",
+      "arrows": {
+        "to": true
+      },
+      "id": "ef43864b-da8c-4a9e-ac60-b70c58abde3c",
+      "color": null,
+      "width": null
+    },
+    {
+      "from": "b49b7f0b-4323-4ee5-92b6-9e426691170c",
+      "to": "5d544bda-7d61-44dd-9609-ca47a5fb12d3",
+      "label": "is a",
+      "edge_type": "All",
+      "arrows": {
+        "to": true
+      },
+      "id": "5ee12038-85c2-4670-95eb-85e01a169633",
+      "color": null,
+      "width": null
+    },
+    {
+      "from": "4f34c1a9-c93a-4f52-bc9f-6c7bcdf16b54",
+      "to": "2bc4d46e-c5eb-41ce-89b9-ef2ac8a5e78d",
+      "label": "can",
+      "edge_type": "Not",
+      "arrows": {
+        "to": true
+      },
+      "color": "#ee3057",
+      "id": "4e5c9556-131b-45f8-8660-06f103c1eb0e"
+    }
+  ]
+}

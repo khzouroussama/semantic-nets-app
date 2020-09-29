@@ -1,25 +1,29 @@
 import React, {useState} from 'react';
 // In your App.js or index.js entry
 import 'tailwindcss/dist/base.min.css'
-import tw from 'twin.macro'
+import tw, {styled} from 'twin.macro'
 import VisNetwork from './components/graph'
 // import ToolBar from './components/toolbar'
 import SNetwork from './logic/SementicNets'
 import {DataSet} from "vis-network/standalone/esm/vis-network";
 import KR_EXAMPLE from './exemples/KR.json'
+import oiseaux from './exemples/oiseaux.json'
 
 
 const Layout = tw.div`flex flex-row flex-wrap items-center  min-h-screen items-stretch ` ,
       Card   = tw.div`border-2 rounded-lg border-indigo-100 py-2 px-4 mx-4 shadow bg-gray-100`,
       Button = tw.button`mb-2 mx-2 bg-gray-400 hover:bg-gray-500 shadow-sm text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center`,
       //Input  = tw.input`flex-1 border border-indigo-300 rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10 mb-3 shadow-inner` ,
-      Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner overflow-hidden`
-
+      Select = tw.select`flex-1 border-2 bg-gray-200  rounded-lg px-1 mx-1 mt-1 text-center outline-none p-1 h-10  mb-3 shadow-inner overflow-hidden`,
+      Popup = styled.div`
+        ${tw`absolute p-4 shadow-2xl rounded-lg m-4 z-50 border border-indigo-600 bg-gray-100`}
+        ${({open}) => !open && tw`hidden`}
+      `
 function App() {
   const [data , setData] = useState({nodes :new DataSet(KR_EXAMPLE.nodes), edges : new DataSet(KR_EXAMPLE.edges)})
   const [readabledata , setReadableData] = useState({nodes :KR_EXAMPLE.nodes, edges : KR_EXAMPLE.edges})
 
-  const [markprop , setMarkProp] = useState({val1 : KR_EXAMPLE.nodes[0].id , link : 'is a' , val2 :  KR_EXAMPLE.nodes[0].id })
+  const [markprop , setMarkProp] = useState({val1 : KR_EXAMPLE.nodes[0].id , link : 'is a' , edge_type: 'All' , val2 :  KR_EXAMPLE.nodes[0].id })
   const [lastMarkers , setLastMarkers] = useState({m1 :[] , m2 :[] , solutions : []})
 
   const [saturationID , setSaturationID] = useState('everything')
@@ -28,7 +32,10 @@ function App() {
   const sem_net = SNetwork(readabledata)
   const all_links = [...new Set(data.edges.get().map( v => v.label ))]
 
-  console.log(KR_EXAMPLE)
+  const exemples = [KR_EXAMPLE ,oiseaux]
+
+  const [exemple_popup_open,setExemple_popup_open] = useState(false)
+  // console.log(readabledata)
   // const getData = () => {
   //   return {
   //     nodes : data.nodes.get() ,
@@ -36,11 +43,23 @@ function App() {
   //   }
   // }
 
+  const newGraph = () => {
+    cleanGraph()
+    handleChange({nodes :new DataSet(), edges : new DataSet()})
+
+  }
+  const loadExample = (num) => {
+    cleanGraph()
+    const results = exemples[num]
+    handleChange({nodes :new DataSet(results.nodes), edges : new DataSet(results.edges)})
+
+    setExemple_popup_open(false)
+  }
 
   const handleChange = (data_) => {
     setData(data_)
     setReadableData({nodes: data_.nodes.get() , edges: data_.edges.get()})
-    setMarkProp({val1 : data_.nodes.get()[0].id , link : 'is a' , val2 : data_.nodes.get()[0].id })
+    setMarkProp({val1 : data_.nodes.get()[0].id , link : 'is a'  , edge_type :'Most' , val2 : data_.nodes.get()[0].id })
   }
 
   const cleanGraph = () => {
@@ -84,7 +103,7 @@ function App() {
 
     // find solutions
     const result = data.edges.get().filter(
-        edge => ((data.nodes.get(edge.from).M1 && data.nodes.get(edge.to).M2) || (data.nodes.get(edge.from).M2 && data.nodes.get(edge.to).M1)) && edge.label === markprop.link
+        edge => ((data.nodes.get(edge.from).M1 && data.nodes.get(edge.to).M2) || (data.nodes.get(edge.from).M2 && data.nodes.get(edge.to).M1)) && edge.label === markprop.link && edge.edge_type === markprop.edge_type
     )
     //=========================== visualize Solutions
     // Color solution edges
@@ -119,7 +138,7 @@ result.length ?
     let result =[] ;
     let new_edges =[] ;
 
-    const exceptions = readabledata.edges.filter(v => v.label === 'is not')
+    // const exceptions = readabledata.edges.filter(v => v.edge_type === 'NOT')
 
     if (saturationID === 'everything'){
       // console.log(saturationID)
@@ -127,11 +146,11 @@ result.length ?
         data.nodes.forEach( node => {
           result = sem_net.saturate(node.id , link )
           // Skip Exceptions
-          result = result.filter(n => !(exceptions.map(ex=> ex.from).includes(node.id) && exceptions.map(ex=> ex.to).includes(n)) )
+          // result = result.filter(n => !(exceptions.map(ex=> ex.from).includes(node.id) && exceptions.map(ex=> ex.to).includes(n)) )
 
           new_edges = new_edges.concat(
               data.edges.add(
-                  result.map(val => ({from : node.id , to : val , label : link, arrows : {to :true} , dashes : true , color : 'lightgray'}))
+                  result.map(val => ({from : node.id  , to : val.to , label : '['+val.type +'] '+ link, arrows : {to :true} , dashes : true , color : 'lightgray'} ))
               )
           )
         })
@@ -141,9 +160,15 @@ result.length ?
       all_links.forEach(
           link  => {
             result = sem_net.saturate(saturationID , link)
-            result = result.filter(n => !(exceptions.map(ex=> ex.from).includes(saturationID) && exceptions.map(ex=> ex.to).includes(n)) )
+            console.log('results->>>', link,'-', result)
+
+
+            // check exceptions of this deduction
+            // clean
+
+            // result = result.filter(n => !(exceptions.map(ex=> ex.from).includes(saturationID) && exceptions.map(ex=> ex.to).includes(n)) )
             new_edges = new_edges.concat(data.edges.add(
-                result.map(val => ({from : saturationID , to : val , label : link, arrows : {to :true} , dashes : true , color : 'lightgray'} ))
+                result.map(val => ({from : saturationID , to : val.to , label : '['+val.type +'] '+ link, arrows : {to :true} , dashes : true , color : 'lightgray'} ))
             ))
           })
     }
@@ -218,8 +243,22 @@ result.length ?
                 </span>
                 <span>Save</span>
               </Button>
+              <Button onClick={() => setExemple_popup_open(true)} >
+                <span tw="h-5">
+                  {/*<svg  viewBox="0 0 24 24">*/}
+                  {/*    <path fill="currentColor" d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />*/}
+                  {/*</svg>*/}
+                </span>
+                <span>Exemples</span>
+              </Button>
               <div tw="text-sm my-1 text-indigo-400 font-mono p-1 border rounded-full bg-gray-200 shadow-inner mx-5"> <b>{readabledata.nodes.length}</b> Concepts - <b>{readabledata.edges.length}</b> relations</div>
               <div>
+                <Button tw="p-2 py-1 mt-2"  onClick={()=> newGraph()}>
+                  <span tw="fill-current w-5 h-5 mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                  </span>
+                  <span>New</span>
+                </Button>
                 <Button tw="p-2 py-1 mt-2"  onClick={()=> cleanGraph()}>
                   <span tw="fill-current w-5 h-5 mr-2">
                     <svg viewBox="0 0 24 24">
@@ -234,7 +273,13 @@ result.length ?
               <div tw="text-lg text-indigo-600 my-2 font-bold uppercase"> Algorithms</div>
               {/* mark propagation */}
               <Card>
-                <div tw="my-2 text-indigo-600 font-bold">Mark propagation</div>
+                <div tw="my-2 text-indigo-600 font-bold text-center">Mark propagation</div>
+                <Select name="edge_type" tw="w-full" value={markprop.edge_type} onChange={handleMarkProp}>
+                  <option value="All">Strict (Always)</option>
+                  <option value="Most">Not Strict (Generally)</option>
+                  <option value="Not">Strictly Not (Always Not)</option>
+                  <option value="NSNot">Not Strictly Not (Generally Not)</option>
+                </Select>
                   <div tw="flex flex-wrap">
                     <Select name="val1" tw="w-full lg:w-1/3" value={markprop.val1} onChange={handleMarkProp}>
                       {
@@ -267,7 +312,7 @@ result.length ?
               <Card tw="mt-4">
                 <div tw="my-2 text-indigo-600 font-bold">Inheritance</div>
                 <div tw="flex flex-row">
-                  <Select name="SaturationID" tw="w-1/3 lg:mx-12" value={saturationID}  onChange={handleSaturation}>
+                  <Select name="SaturationID" tw="w-2/3" value={saturationID}  onChange={handleSaturation}>
                     <option tw="bg-green-400 font-bold" value="everything">Everthing</option>
                     {
                       readabledata.nodes.map(node =>
@@ -275,10 +320,11 @@ result.length ?
                       )
                     }
                   </Select>
+                  <Button tw="h-10 mt-1" onClick={()=> runSaturate()}>
+                    <span>Saturate</span>
+                  </Button>
                 </div>
-                <Button onClick={()=> runSaturate()}>
-                  <span>Saturate Network</span>
-                </Button>
+
               </Card>
             </Card>
           </div>
@@ -292,12 +338,29 @@ result.length ?
                 <path
                     d='M256,32C132.3,32,32,134.9,32,261.7c0,101.5,64.2,187.5,153.2,217.9a17.56,17.56,0,0,0,3.8.4c8.3,0,11.5-6.1,11.5-11.4,0-5.5-.2-19.9-.3-39.1a102.4,102.4,0,0,1-22.6,2.7c-43.1,0-52.9-33.5-52.9-33.5-10.2-26.5-24.9-33.6-24.9-33.6-19.5-13.7-.1-14.1,1.4-14.1h.1c22.5,2,34.3,23.8,34.3,23.8,11.2,19.6,26.2,25.1,39.6,25.1a63,63,0,0,0,25.6-6c2-14.8,7.8-24.9,14.2-30.7-49.7-5.8-102-25.5-102-113.5,0-25.1,8.7-45.6,23-61.6-2.3-5.8-10-29.2,2.2-60.8a18.64,18.64,0,0,1,5-.5c8.1,0,26.4,3.1,56.6,24.1a208.21,208.21,0,0,1,112.2,0c30.2-21,48.5-24.1,56.6-24.1a18.64,18.64,0,0,1,5,.5c12.2,31.6,4.5,55,2.2,60.8,14.3,16.1,23,36.6,23,61.6,0,88.2-52.4,107.6-102.3,113.3,8,7.1,15.2,21.1,15.2,42.5,0,30.7-.3,55.5-.3,63,0,5.4,3.1,11.5,11.4,11.5a19.35,19.35,0,0,0,4-.4C415.9,449.2,480,363.1,480,261.7,480,134.9,379.7,32,256,32Z'/>
               </svg>
-              source
+              /khzouroussama
             </a>
           </div>
 
         </div>
       </Layout>
+      <Popup style={{left:'50%' , top:'50%' , transform: 'translate(-50%, -50%)'}} open={exemple_popup_open}>
+        <div>
+          <div tw="text-lg text-blue-600 font-bold mb-3">Exemples</div>
+          <div tw="mt-4 ">
+            <Card tw="mt-2 cursor-pointer hover:bg-gray-300 active:bg-gray-400 " onClick={() => loadExample(0)}>
+              Modes_de_Représentations_des_connaissances.json
+            </Card>
+            <Card tw="mt-2 cursor-pointer hover:bg-gray-300 active:bg-gray-400" onClick={() => loadExample(1)}>
+              Birds.json
+            </Card>
+            <Card tw="mt-2 cursor-pointer hover:bg-gray-300 active:bg-gray-400">
+              more Comming soon ...
+            </Card>
+          </div>
+          <Button tw="mt-4" onClick={()=> setExemple_popup_open(false)}>Cancel</Button>
+        </div>
+      </Popup>
     </div>
   );
 }
